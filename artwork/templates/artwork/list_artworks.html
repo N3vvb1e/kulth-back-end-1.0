@@ -1,0 +1,10 @@
+{% extends 'artwork/base.html' %} {% block content %}
+<h2>Artwork List</h2>
+<ul>
+  {% for artwork in artworks %}
+  <li>{{ artwork.name }}</li>
+  {% empty %}
+  <li>No artworks found.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
