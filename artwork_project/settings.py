@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 from decouple import config
 
@@ -26,11 +27,22 @@ SECRET_KEY = 'django-insecure-5#no_+j4c$coz8sqggj@ny*-l7)g=u@bmpn6wk6!xbyo9zhxsj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.10', '192.168.137.1', '192.168.43.183', '2620c48de9cf930f9c090d2a357d674e.serveo.net']
 
+# This should contain the host on which the back-end is
+ALLOWED_HOSTS = ['localhost', 'django-env.eba-umefgnga.eu-north-1.elasticbeanstalk.com',]
+
+# This should contain the url of the front-end, if CORS_ALLOW_ALL_ORIGINS is False
 CORS_ALLOWED_ORIGINS = [
-    'https://tiny-bugs-care.loca.lt'
+    'http://localhost:8100',  # Assuming your frontend is served from here
+    'http://localhost:8000',  # Your Django server
+    'https://localhost',
+    'https://penguui2loil.share.zrok.io',
+    'https://kulth.s3.eu-north-1.amazonaws.com'
+    
 ]
+
+
+#CORS_ALLOW_ALL_ORIGINS = True # On production this should be False
 
 
 # Application definition
@@ -136,5 +148,16 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGINS = True # Not recommended
+# This is needed for cookies to work
 CORS_ALLOW_CREDENTIALS = True
+
+#SESSION_COOKIE_DOMAIN = 'localhost'
+
+# Set this to 'None' if you are using HTTPS and Lax if you are using HTTP
+SESSION_COOKIE_SAMESITE = 'None'
+
+# Set this to True if you are using HTTPS
+SESSION_COOKIE_SECURE = True 
+
+# Set this to True if you are using HTTPS
+CSRF_COOKIE_SECURE = True

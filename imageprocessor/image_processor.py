@@ -1,3 +1,4 @@
+import datetime
 from io import BytesIO
 import numpy as np
 import os
@@ -6,8 +7,12 @@ from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
 from tensorflow.keras.models import Model
 import pickle
 
-
 def load_model():
+    base_model = ResNet50(weights='imagenet')
+    model = Model(inputs=base_model.input, outputs=base_model.get_layer('avg_pool').output)
+    return model
+
+def create_feature_model():
     base_model = ResNet50(weights='imagenet')
     model = Model(inputs=base_model.input, outputs=base_model.get_layer('avg_pool').output)
     return model
@@ -23,29 +28,50 @@ def extract_features(model, img_path):
     features = model.predict(preprocessed_image)
     return features
 
+def load_feature_model():
+    base_model = load_model(weights='imagenet')
+    model = Model(inputs=base_model.input, outputs=base_model.get_layer('avg_pool').output)
+    return model
+
 def run_preprocessing():
-    print('run_preprocessing')
     pkl_file_path = 'database_features.pkl'
-    
-    if not os.path.exists(pkl_file_path):
-        model = load_model()
-        image_directory = 'images/'
+    image_directory = 'images/'
+    model = load_model()
+
+    if os.path.exists(pkl_file_path):
+        with open(pkl_file_path, 'rb') as f:
+            database_features_dict = pickle.load(f)
+    else:
         database_features_dict = {}
 
-        for img_name in os.listdir(image_directory):
-            if img_name.endswith(('.png', '.jpg', '.jpeg')):
-                img_path = os.path.join(image_directory, img_name)
-                features = extract_features(model, img_path)
-                database_features_dict[img_name] = features
+    # Generate a set of current images including path relative to image_directory
+    current_images = set()
+    for dirpath, _, filenames in os.walk(image_directory):
+        for filename in filenames:
+            if filename.endswith(('.png', '.jpg', '.jpeg')):
+                rel_dir = os.path.relpath(dirpath, image_directory)
+                rel_file = os.path.join(rel_dir, filename)
+                current_images.add(rel_file)
 
-        # Only save the .pkl file if it does not already exist
-        with open(pkl_file_path, 'wb') as f:
-            pickle.dump(database_features_dict, f)
-    else:
-        print(".pkl file already exists. Skipping preprocessing.")
+    stored_images = set(database_features_dict.keys())
 
+    # Add new images
+    new_images = current_images - stored_images
+    for img_name in new_images:
+        img_path = os.path.join(image_directory, img_name)
+        features = extract_features(model, img_path)
+        database_features_dict[img_name] = features
+        print('adding image', img_name)
 
+    # Remove deleted images
+    deleted_images = stored_images - current_images
+    for img_name in deleted_images:
+        database_features_dict.pop(img_name, None)
+        print('remove image', img_name)
 
+    # Save updated features dictionary
+    with open(pkl_file_path, 'wb') as f:
+        pickle.dump(database_features_dict, f)
 
 global_model = load_model()
 
@@ -56,13 +82,18 @@ def compare_features(feature1, feature2):
 
 def find_matching_image(database_features, target_feature):
     """Find the most similar image in the database to the target feature."""
+    if not database_features:
+        return None, 0  # No images to compare against
+
     similarities = [compare_features(target_feature, db_feature) for db_feature in database_features.values()]
+    if not similarities:
+        return None, 0  # No valid similarities found
+
     max_similarity_index = np.argmax(similarities)
     max_similarity = similarities[max_similarity_index]
-
-    # Retrieve the matching image name using the index
     matching_image_name = list(database_features.keys())[max_similarity_index]
     return matching_image_name, max_similarity
+
 
 
 def process_uploaded_image(uploaded_image):

@@ -21,11 +21,12 @@ from imageprocessor import views as imageprocessor_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-#    path('artworks/add/', artwork_view.add_artwork, name='add_artwork'),
-#    path('artworks/', artwork_view.list_artworks, name='list_artworks'),
-    path('admin/', admin.site.urls),
+    path('manage_artwork/', artwork_view.manage_artwork, name='manage_artwork'),
+    path('delete_artwork/', artwork_view.delete_artwork, name='delete_artwork'),
+    path('get_artworks/', artwork_view.get_artworks, name='get_artworks'),
+    path('delete_image/<path:file_path>/', artwork_view.delete_image, name='delete_image'),
     path('upload/', imageprocessor_view.upload_image, name='upload_image'),
-    path('images/<str:image_name>', imageprocessor_view.fetch_image, name='fetch_image'),
+    path('images/<path:image_name>', imageprocessor_view.fetch_image, name='fetch_image'),
     path('text_to_speech/', imageprocessor_view.google_text_to_speech, name='text_to_speech'),
     path('ai/', imageprocessor_view.generate_text_using_ai, name='ai'),
     path('csrf/', imageprocessor_view.csrf_token, name='csrf_token'),

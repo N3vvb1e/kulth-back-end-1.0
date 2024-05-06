@@ -1,26 +1,28 @@
 import openai
 
-openai.api_key = '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'
+from imageprocessor import views
 
-# Initial system message setup
-messages = [{"role": "system", "content": "You are an intelligent assistant."}]
+messages = [{"role": "system", "content": "You are an art expert"}]
 
 def generate_response(prompt):
+    reply = None
     if prompt:
-        # Append the user's message
+        print("prompt: " + prompt)
         messages.append({"role": "user", "content": prompt})
-        
-        # Call the OpenAI API to generate a response
+
         chat = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=messages
+            messages=messages,
+            api_key=views.OPENAI_API_KEY
         )
-        
-        # Extract the reply
-        reply = chat.choices[0].message.content
+
+        # Clean up the reply to remove empty lines
+        raw_reply = chat.choices[0].message.content.strip()
+        filtered_reply = '\n'.join(line for line in raw_reply.split('\n') if line.strip())
+
+        reply = filtered_reply
         print(f"ChatGPT: {reply}")
-        
-        # Append the assistant's reply for future context
+
         messages.append({"role": "assistant", "content": reply})
 
     return reply
