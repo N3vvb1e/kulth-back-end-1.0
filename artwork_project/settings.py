@@ -37,7 +37,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000',  # Your Django server
     'https://localhost',
     'https://penguui2loil.share.zrok.io',
-    'https://kulth.s3.eu-north-1.amazonaws.com'
+    'https://kulth.s3.eu-north-1.amazonaws.com',
+    'https://39n88kcj8dn2.share.zrok.io'
     
 ]
 
