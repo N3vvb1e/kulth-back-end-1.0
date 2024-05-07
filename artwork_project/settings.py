@@ -29,7 +29,7 @@ DEBUG = True
 
 
 # This should contain the host on which the back-end is
-ALLOWED_HOSTS = ['localhost', 'django-env.eba-umefgnga.eu-north-1.elasticbeanstalk.com',]
+ALLOWED_HOSTS = ['localhost', '.vercel.app',]
 
 # This should contain the url of the front-end, if CORS_ALLOW_ALL_ORIGINS is False
 CORS_ALLOWED_ORIGINS = [
